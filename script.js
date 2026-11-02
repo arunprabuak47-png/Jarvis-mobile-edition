@@ -58,25 +58,51 @@ async function askGemini(p){
 }
 
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-const rec = new SR();
-rec.lang = 'en-US';
+if (!SR) {
+  micBtn.innerText = '❌';
+  micBtn.onclick = () => alert("Your browser does not support voice. Use Chrome on Android.");
+} else {
+  const rec = new SR();
+  rec.lang = 'en-US';
+  rec.continuous = false;
+  rec.interimResults = false;
 
-rec.onresult = (e) => {
-  const t = e.results[0][0].transcript;
-  add('YOU: ' + t, 'user');
-  askGemini(t);
-};
+  rec.onstart = () => {
+    micBtn.innerText = '🔴 LISTENING';
+    micBtn.style.background = 'red';
+    micBtn.style.color = 'white';
+  };
 
-micBtn.onclick = () => {
-  rec.start();
-  micBtn.innerText = '...';
-};
+  rec.onend = () => {
+    micBtn.innerText = '🎙';
+    micBtn.style.background = '#0ff';
+    micBtn.style.color = '#000';
+  };
 
-rec.onend = () => {
-  micBtn.innerText = '🎙';
-};
+  rec.onresult = (e) => {
+    const t = e.results[0][0].transcript;
+    add('YOU: ' + t, 'user');
+    askGemini(t);
+  };
+
+  rec.onerror = (e) => {
+    alert('Mic Error: ' + e.error + '\nCheck mic permission');
+    micBtn.innerText = '🎙';
+    micBtn.style.background = '#0ff';
+  };
+
+  micBtn.onclick = () => {
+    try {
+      rec.start();
+    } catch(err) {
+      rec.stop();
+      setTimeout(() => rec.start(), 300);
+    }
+  };
+}
 
 function speak(t){
+  speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(t);
   u.rate = 1.05;
   u.pitch = 0.85;
