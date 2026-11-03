@@ -1,27 +1,6 @@
-const chat = document.getElementById('chat');
-const input = document.getElementById('msg');
-
-document.getElementById('send').onclick = () => {
-  const t = input.value.trim();
-  if (!t) return;
-  add('YOU: ' + t, 'user');
-  input.value = '';
-  add('J.A.R.V.I.S: Processing...', 'ai');
-  setTimeout(() => {
-    chat.lastChild.innerText = 'J.A.R.V.I.S: Systems online. How may I assist you, Boss?';
-  }, 1000);
-};
-
-function add(text, who) {
-  const d = document.createElement('div');
-  d.className = 'msg ' + who;
-  d.innerText = text;
-  chat.appendChild(d);
-  chat.scrollTop = chat.scrollHeight;
-}
 let API_KEY = localStorage.getItem('jarvis_key');
 if(!API_KEY){
-  API_KEY = prompt('AQ.Ab8RN6JPYKuipcY38xclzE3XngxZh5q5SlBVAPuyJICNFyDE3Q:');
+  API_KEY = prompt('Enter your Gemini API Key:');
   if(API_KEY) localStorage.setItem('jarvis_key', API_KEY);
 }
 
@@ -57,6 +36,7 @@ async function askGemini(p){
   }
 }
 
+// MIC - FIXED
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 if (!SR) {
   micBtn.innerText = '❌';
@@ -92,9 +72,8 @@ if (!SR) {
   };
 
   micBtn.onclick = () => {
-    try {
-      rec.start();
-    } catch(err) {
+    try { rec.start(); }
+    catch(err) {
       rec.stop();
       setTimeout(() => rec.start(), 300);
     }
@@ -109,6 +88,7 @@ function speak(t){
   speechSynthesis.speak(u);
 }
 
+// SEND - SINGLE DEFINITION ONLY
 document.getElementById('send').onclick = () => {
   const t = input.value.trim();
   if(!t) return;
@@ -128,3 +108,6 @@ function add(t,w){
 input.addEventListener("keypress", e => {
   if(e.key === "Enter") document.getElementById('send').click();
 });
+
+// Welcome message
+add('J.A.R.V.I.S: Systems Online Boss!','ai');
